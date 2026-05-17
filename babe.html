@@ -1,65 +1,23 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        var secureHash = "e2c347db1f855d081f9b3b89fa72b78b";
+        var inputPassword = prompt("Direct entry checked! Enter Secret Password to access this page:");
+        if (inputPassword !== null) {
+            var inputHash = CryptoJS.MD5(inputPassword).toString();
+            if (inputHash !== secureHash) {
+                alert("Wrong Password! Redirecting to home... ❌");
+                window.location.href = "index.html";
+            }
+        } else {
+            window.location.href = "index.html";
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For You My Love ❤️</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            background: #ff758c;
-            background: linear-gradient(135deg, #ff758c, #ff7eb3);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            overflow: hidden;
-        }
-        .love-text {
-            font-size: 3.5rem;
-            font-weight: bold;
-            text-shadow: 3px 3px 15px rgba(0,0,0,0.3);
-            animation: heartBeat 1.5s infinite;
-            margin-bottom: 40px;
-        }
-        @keyframes heartBeat {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .next-btn {
-            padding: 15px 30px;
-            background: #fff;
-            color: #ff758c;
-            text-decoration: none;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 1.2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: 0.3s;
-            border: none;
-        }
-        .next-btn:hover {
-            background: #2c3e50;
-            color: #fff;
-            transform: scale(1.1);
-        }
-    </style>
-</head>
-<body>
-
-    <div class="love-text">I love you babe 😚❤️</div>
-    
-    <a href="letter.html" class="next-btn">( ispe dabao babe 😚❤️ )</a>
-
-</body>
-</html>
+...
+        
