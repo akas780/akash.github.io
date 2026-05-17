@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mehar & Akash</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -108,7 +109,7 @@
 </head>
 <body>
 
-    <div class="split akash" onclick="checkPassword('akash')">
+    <div class="split akash" onclick="checkSecurePassword('akash')">
         <div class="overlay"></div>
         <div class="content">
             <h1>Akash</h1>
@@ -117,7 +118,7 @@
         </div>
     </div>
 
-    <div class="split mehar" onclick="checkPassword('mehar')">
+    <div class="split mehar" onclick="checkSecurePassword('mehar')">
         <div class="overlay"></div>
         <div class="content">
             <h1>Mehar</h1>
@@ -127,20 +128,24 @@
     </div>
 
     <script>
-        function checkPassword(section) {
-            if (section === 'akash') {
-                var password = prompt("Enter Password to open Akash's space:");
-                if (password === "201304") {
-                    window.location.href = "akash.html";
-                } else if (password !== null) {
-                    alert("Galat Password hai bhai! ❌");
-                }
-            } else if (section === 'mehar') {
-                var password = prompt("Enter Password to open Mehar's world:");
-                if (password === "201304") {
-                    window.location.href = "mehar.html";
-                } else if (password !== null) {
-                    alert("Wrong Password! ❌");
+        // Tumhare password '201304' ka MD5 encrypted string niche diya hai
+        var secureHash = "e2c347db1f855d081f9b3b89fa72b78b";
+
+        function checkSecurePassword(section) {
+            var inputPassword = prompt("Enter Secret Password:");
+            
+            if (inputPassword !== null) {
+                // Input kiye gaye password ko encrypt karke check karega
+                var inputHash = CryptoJS.MD5(inputPassword).toString();
+                
+                if (inputHash === secureHash) {
+                    if (section === 'akash') {
+                        window.location.href = "akash.html";
+                    } else if (section === 'mehar') {
+                        window.location.href = "mehar.html";
+                    }
+                } else {
+                    alert("Wrong Password! Access Denied ❌");
                 }
             }
         }
