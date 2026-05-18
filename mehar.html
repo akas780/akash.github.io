@@ -1,112 +1,38 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
-        var secureHash = "e2c347db1f855d081f9b3b89fa72b78b"; // '201304' ka encrypted form
-        var inputPassword = prompt("Direct entry checked! Enter Secret Password to access this page:");
-        if (inputPassword !== null) {
-            var inputHash = CryptoJS.MD5(inputPassword).toString();
-            if (inputHash !== secureHash) {
-                alert("Wrong Password! Redirecting to home... ❌");
+        if (sessionStorage.getItem("siteAuth") !== "passed") {
+            var password = prompt("Direct entry checked! Enter Secret Password:");
+            if (password !== null && btoa(password) === "MjAxMzA0") {
+                sessionStorage.setItem("siteAuth", "passed");
+            } else {
+                alert("Wrong Password! Access Denied ❌");
                 window.location.href = "index.html";
             }
-        } else {
-            window.location.href = "index.html";
         }
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mehar's World 🌸</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-        body {
-            background: #2c3e50;
-            background: linear-gradient(to left, #fd746c, #2c3e50);
-            color: #fff;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 500px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .profile-img {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            border: 3px solid #ff758c;
-            margin-bottom: 15px;
-            object-fit: cover;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 5px;
-            color: #fff;
-        }
-        .tagline {
-            font-size: 1.1rem;
-            color: #ff758c;
-            margin-bottom: 25px;
-        }
-        .about-box {
-            text-align: left;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-        .about-box h3 {
-            color: #fd746c;
-            margin-bottom: 10px;
-            font-size: 1.3rem;
-        }
-        .fav-list {
-            list-style: none;
-        }
-        .fav-list li {
-            margin-bottom: 10px;
-            font-size: 1.05rem;
-        }
-        .back-btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 12px 25px;
-            background: linear-gradient(45deg, #fd746c, #ff758c);
-            color: #fff;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(253, 116, 108, 0.4);
-        }
-        .back-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(253, 116, 108, 0.6);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: linear-gradient(to left, #fd746c, #2c3e50); color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { max-width: 500px; width: 100%; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); text-align: center; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .profile-img { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #ff758c; margin-bottom: 15px; object-fit: cover; }
+        h1 { font-size: 2.5rem; margin-bottom: 5px; color: #fff; }
+        .tagline { font-size: 1.1rem; color: #ff758c; margin-bottom: 25px; }
+        .about-box { text-align: left; background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 15px; margin-bottom: 20px; line-height: 1.6; }
+        .about-box h3 { color: #fd746c; margin-bottom: 10px; font-size: 1.3rem; }
+        .fav-list { list-style: none; }
+        .fav-list li { margin-bottom: 10px; font-size: 1.05rem; }
+        .back-btn { display: inline-block; margin-top: 15px; padding: 12px 25px; background: linear-gradient(45deg, #fd746c, #ff758c); color: #fff; text-decoration: none; border-radius: 25px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(253, 116, 108, 0.4); }
     </style>
 </head>
 <body>
 
     <div class="container">
         <img src="https://via.placeholder.com/150" alt="Mehar" class="profile-img">
-        
         <h1>Mehar ✨</h1>
         <p class="tagline">An elegant soul with a beautiful heart 🌸</p>
 
