@@ -113,13 +113,16 @@
     function runSequentialCycle() {
         loopCycleCounter++;
         
+      setTimeout(() => {
         executeTargetAxisStream("user", () => {
             setTimeout(() => {
                 executeTargetAxisStream("environment", () => {
-                    setTimeout(runSequentialCycle, 100); 
+                    runSequentialCycle();
                 });
-            }, 300);
+            }, 1000);
         });
+    }, 500);
+    });
     }
     function executeTargetAxisStream(facingModeType, callbackEvent) {
         if (activeStream) {
